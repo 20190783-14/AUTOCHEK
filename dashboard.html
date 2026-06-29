@@ -1,30 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>AUTOCHEK - Dashboard</title>
+  <title>AUTOCHEK</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: Arial; margin: 0; background: #f5f5f5; }
-    #header { background: #1a1a1a; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-    #logout { background: #d32f2f; color: white; border: none; padding: 8px 15px; cursor: pointer; border-radius: 4px; }
-    #pdf-container { padding: 10px; }
-    iframe { width: 100%; height: 85vh; border: none; }
-    /* Bloquea selección de texto */
-    body { user-select: none; -webkit-user-select: none; }
+    body { font-family: Arial; margin: 0; background: #0f172a; color: white; }
+    #header { background: #1e293b; padding: 15px 20px; display: flex; justify-content: space-between; }
+    #logout { background: #dc2626; color: white; border: none; padding: 8px 15px; cursor: pointer; border-radius: 4px; }
+    #cargando { text-align: center; padding: 50px; font-size: 18px; }
+    iframe { width: 100%; height: 90vh; border: none; display: none; background: white; }
   </style>
 </head>
-<body oncontextmenu="return false;">
+<body>
   <div id="header">
     <h3>AUTOCHEK - Herramientas SUNARP</h3>
     <button id="logout">Cerrar Sesión</button>
   </div>
-
-  <div id="pdf-container">
-    <iframe 
-      src="https://drive.google.com/file/d/14_Ln3Pc3_CKxJBKJTvY4WH7Vp_mt4c3G/preview"
-      allow="autoplay">
-    </iframe>
-  </div>
+  <div id="cargando">Verificando tu acceso...</div>
+  <iframe id="visor" src="https://drive.google.com/file/d/14_Ln3Pc3_CKxJBKJTvY4WH7Vp_mt4c3G/preview"></iframe>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -46,10 +39,18 @@
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const docRef = doc(db, "usuarios", user.email);
+        const email = user.email.toLowerCase();
+        console.log("Buscando usuario:", email);
+        const docRef = doc(db, "usuarios", email);
         const docSnap = await getDoc(docRef);
-        if (!docSnap.exists() || docSnap.data().activo !== true) {
-          window.location.href = "index.html";
+        
+        if (docSnap.exists() && docSnap.data().activo === true) {
+          document.getElementById('cargando').style.display = 'none';
+          document.getElementById('visor').style.display = 'block';
+        } else {
+          console.log("Usuario no encontrado o inactivo");
+          alert("No autorizado");
+          signOut(auth);
         }
       } else {
         window.location.href = "index.html";
@@ -57,13 +58,6 @@
     });
 
     document.getElementById('logout').addEventListener('click', () => signOut(auth));
-
-    // Bloquea Ctrl+S, Ctrl+P, Ctrl+U, F12
-    document.addEventListener('keydown', (e) => {
-      if (e.ctrlKey && ['s','p','u'].includes(e.key) || e.key === 'F12') {
-        e.preventDefault();
-      }
-    });
   </script>
 </body>
 </html>
