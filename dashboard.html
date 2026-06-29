@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>AUTOCHEK - Dashboard</title>
+    <style>
+        body { margin: 0; font-family: Arial; background: #f5f5f5; }
+        .header { background: #16213e; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+        button { background: #e94560; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #c73e54; }
+        iframe { width: 100%; height: calc(100vh - 60px); border: none; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>AUTOCHEK</h2>
+        <button id="logoutBtn">Cerrar sesión</button>
+    </div>
+    <iframe src="https://drive.google.com/file/d/TU_ID_DE_PDF/preview"></iframe>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyAFIy6AUuD9F-nF2QB0X6GN09oDawdsikw",
+            authDomain: "autochek-4c5a2.firebaseapp.com",
+            projectId: "autochek-4c5a2",
+            storageBucket: "autochek-4c5a2.firebasestorage.app",
+            messagingSenderId: "898922126747",
+            appId: "1:898922126747:web:bfc09392d5babab05f953e",
+            measurementId: "G-4PN3MNHCN5"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        
+        onAuthStateChanged(auth, (user) => {
+            if (!user) window.location.href = "index.html";
+        });
+
+        document.getElementById('logoutBtn').onclick = () => signOut(auth);
+    </script>
+</body>
+</html>
