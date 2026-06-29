@@ -1,46 +1,63 @@
-<script type="module">
-  // Import Firebase y Auth
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AUTOCHEK - Acceso</title>
+    <style>
+        body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #1a1a2e; color: white; }
+        .login-box { background: #16213e; padding: 40px; border-radius: 10px; text-align: center; box-shadow: 0 8px 16px rgba(0,0,0,0.3); }
+        button { background: #e94560; color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 20px; }
+        button:hover { background: #0f3460; }
+        #error { color: #ff6b6b; margin-top: 20px; height: 20px; }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h1>AUTOCHEK</h1>
+        <p>Acceso solo para usuarios autorizados</p>
+        <button id="loginBtn">Iniciar sesión con Google</button>
+        <div id="error"></div>
+    </div>
 
-  // Tu configuración de Firebase - ya la tienes bien
-  const firebaseConfig = {
-    apiKey: "AIzaSyAFIy6AUuD9F-nF2QB0X6GN09oDawdsikw",
-    authDomain: "autochek-4c5a2.firebaseapp.com",
-    projectId: "autochek-4c5a2",
-    storageBucket: "autochek-4c5a2.firebasestorage.app",
-    messagingSenderId: "898922126747",
-    appId: "1:898922126747:web:bfc09392d5babab05f953e",
-    measurementId: "G-4PN3MNHCN5"
-  };
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  // Inicializar Firebase
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const provider = new GoogleAuthProvider();
+        const firebaseConfig = {
+            apiKey: "AIzaSyAFIy6AUuD9F-nF2QB0X6GN09oDawdsikw",
+            authDomain: "autochek-4c5a2.firebaseapp.com",
+            projectId: "autochek-4c5a2",
+            storageBucket: "autochek-4c5a2.firebasestorage.app",
+            messagingSenderId: "898922126747",
+            appId: "1:898922126747:web:bfc09392d5babab05f953e",
+            measurementId: "G-4PN3MNHCN5"
+        };
 
-  // ⚠️ EDITA ESTA LISTA: Pon aquí los correos que SÍ pueden entrar
-  const correosAutorizados = [
-    "20190783@unica.edu.pe",
-    "Bravojhony06@gmail.com"
-  ];
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
 
-  // Conectar el botón de login
-  const botonLogin = document.getElementById('loginBtn') || document.querySelector('button');
-  
-  botonLogin.addEventListener('click', () => {
-    signInWithPopup(auth, provider).then((result) => {
-      const email = result.user.email;
-      console.log("Usuario:", email);
-      
-      if (correosAutorizados.includes(email)) {
-        window.location.href = 'dashboard.html'; 
-      } else {
-        window.location.href = 'denegado.html';
-      }
-    }).catch((error) => {
-      console.error("Error:", error);
-      alert("Error al iniciar sesión: " + error.message);
-    });
-  });
-</script>
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            document.getElementById('error').innerText = "";
+            try {
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+                
+                const userDoc = await getDoc(doc(db, "usuarios", user.email));
+                
+                if (userDoc.exists() && userDoc.data().activo === true) {
+                    window.location.href = "dashboard.html";
+                } else {
+                    document.getElementById('error').innerText = "Acceso denegado. Contacta al admin.";
+                    auth.signOut();
+                }
+            } catch (error) {
+                document.getElementById('error').innerText = "Error: " + error.message;
+            }
+        });
+    </script>
+</body>
+</html>
