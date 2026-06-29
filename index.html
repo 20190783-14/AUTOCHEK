@@ -1,35 +1,46 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AUTOCHEK</title>
+<script type="module">
+  // Import Firebase y Auth
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 
-<style>
-html, body{
-    margin:0;
-    padding:0;
-    width:100%;
-    height:100%;
-    background:#000;
-    overflow:hidden;
-}
+  // Tu configuración de Firebase - ya la tienes bien
+  const firebaseConfig = {
+    apiKey: "AIzaSyAFIy6AUuD9F-nF2QB0X6GN09oDawdsikw",
+    authDomain: "autochek-4c5a2.firebaseapp.com",
+    projectId: "autochek-4c5a2",
+    storageBucket: "autochek-4c5a2.firebasestorage.app",
+    messagingSenderId: "898922126747",
+    appId: "1:898922126747:web:bfc09392d5babab05f953e",
+    measurementId: "G-4PN3MNHCN5"
+  };
 
-iframe{
-    width:100%;
-    height:100%;
-    border:none;
-}
-</style>
+  // Inicializar Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
 
-</head>
+  // ⚠️ EDITA ESTA LISTA: Pon aquí los correos que SÍ pueden entrar
+  const correosAutorizados = [
+    "20190783@unica.edu.pe",
+    "Bravojhony06@gmail.com"
+  ];
 
-<body>
-
-<iframe
-src="https://drive.google.com/file/d/1HvWCg-x65aDPzHrSE8qYVznnXGTl3Pbg/preview"
-allow="autoplay">
-</iframe>
-
-</body>
-</html>
+  // Conectar el botón de login
+  const botonLogin = document.getElementById('loginBtn') || document.querySelector('button');
+  
+  botonLogin.addEventListener('click', () => {
+    signInWithPopup(auth, provider).then((result) => {
+      const email = result.user.email;
+      console.log("Usuario:", email);
+      
+      if (correosAutorizados.includes(email)) {
+        window.location.href = 'dashboard.html'; 
+      } else {
+        window.location.href = 'denegado.html';
+      }
+    }).catch((error) => {
+      console.error("Error:", error);
+      alert("Error al iniciar sesión: " + error.message);
+    });
+  });
+</script>
